@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "zygotclient",
+    "name": "Zygot Client",
+    "description": "Next generation Minecraft 1.8.9 PvP Client with Feather/Lunar aesthetics, 35+ mods, Comfortaa fonts, and cosmetics.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://zygotclient.com",
+    "updateUrl": "",
+    "authorList": ["Zygot Development Team"],
+    "credits": "Made by Zygot Development Team",
+    "logoFile": "assets/zygot/textures/logo.png",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

@@ -1,0 +1,29 @@
+# Gradle build outputs and caches
+.gradle/
+build/
+intermediates/
+out/
+bin/
+
+# Minecraft client runtime directory (assets, logs, configs, saves)
+run/
+
+# IDE files
+.idea/*
+!.idea/runConfigurations
+!.idea/gradle.xml
+!.idea/misc.xml
+.idea/runConfigurations/*
+!.idea/runConfigurations/Minecraft_Client.xml
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log

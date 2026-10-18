@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "com.zygot.mixin",
+  "refmap": "mixins.zygot.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "MixinMinecraft",
+    "MixinGuiMainMenu",
+    "MixinGuiInGame",
+    "MixinGuiIngameMenu",
+    "MixinGuiScreen",
+    "MixinItemRenderer",
+    "MixinEntityRenderer",
+    "MixinRenderPlayer",
+    "MixinRendererLivingEntity",
+    "MixinEntityFX",
+    "MixinFontRenderer"
+  ],
+  "mixins": []
+}
