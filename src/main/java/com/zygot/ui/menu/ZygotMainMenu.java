@@ -33,26 +33,37 @@ public class ZygotMainMenu extends GuiScreen {
     private final Random random = new Random();
     private float time = 0;
 
-    private static final ResourceLocation STATIC_BG = new ResourceLocation("zygot/textures/main_menu.png");
-    private static final ResourceLocation LOGO_WHITE = new ResourceLocation("zygot/textures/logo_white_nobg.png");
-    private static final ResourceLocation LOGO_DARK = new ResourceLocation("zygot/textures/logo_dark_nobg.png");
+    private static final ResourceLocation STATIC_BG = new ResourceLocation("zygot", "textures/main_menu.png");
+    private static final ResourceLocation LOGO_WHITE = new ResourceLocation("zygot", "textures/logo_white_nobg.png");
+    private static final ResourceLocation LOGO_DARK = new ResourceLocation("zygot", "textures/logo_dark_nobg.png");
 
     @Override
     public void initGui() {
         buttons.clear();
 
         int centerX = width / 2;
-        int startY = height / 2 - 10;
-        int btnW = 160;
-        int btnH = 26;
-        int spacing = 32;
+        int totalBlockH = 234;
+        int startY = (int) Math.max(25, (height - totalBlockH - 24) / 2f);
+        int btnStartY = startY + 104;
 
-        buttons.add(new MenuButton(1, "Singleplayer", centerX - btnW / 2, startY, btnW, btnH));
-        buttons.add(new MenuButton(2, "Multiplayer", centerX - btnW / 2, startY + spacing, btnW, btnH));
-        buttons.add(new MenuButton(3, "Zygot Mods & HUD", centerX - btnW / 2, startY + spacing * 2, btnW, btnH, true));
-        buttons.add(new MenuButton(4, "3D Cosmetics Wardrobe", centerX - btnW / 2, startY + spacing * 3, btnW, btnH));
-        buttons.add(new MenuButton(5, "Minecraft Options", centerX - btnW / 2, startY + spacing * 4, btnW, btnH));
-        buttons.add(new MenuButton(6, "Quit Game", centerX - btnW / 2, startY + spacing * 5, btnW, btnH));
+        int btnW = 260;
+        int halfW = 126;
+        int btnH = 25;
+        int gap = 6;
+
+        // Row 1: Singleplayer & Multiplayer
+        buttons.add(new MenuButton(1, "Singleplayer", centerX - 130, btnStartY, halfW, btnH));
+        buttons.add(new MenuButton(2, "Multiplayer", centerX + 4, btnStartY, halfW, btnH));
+
+        // Row 2: Zygot Mods & HUD (Full Width Accent)
+        buttons.add(new MenuButton(3, "Zygot Mods & HUD", centerX - 130, btnStartY + (btnH + gap), btnW, btnH, true));
+
+        // Row 3: 3D Cosmetics Wardrobe (Full Width)
+        buttons.add(new MenuButton(4, "3D Cosmetics Wardrobe", centerX - 130, btnStartY + (btnH + gap) * 2, btnW, btnH));
+
+        // Row 4: Options & Quit Game
+        buttons.add(new MenuButton(5, "Options", centerX - 130, btnStartY + (btnH + gap) * 3, halfW, btnH));
+        buttons.add(new MenuButton(6, "Quit Game", centerX + 4, btnStartY + (btnH + gap) * 3, halfW, btnH));
 
         // Initialize particles if animated mode is active
         particles.clear();
@@ -72,7 +83,7 @@ public class ZygotMainMenu extends GuiScreen {
         if (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.STATIC_IMAGE) {
             // High-resolution static wallpaper
             Render2DHelper.drawTexturedRect(0, 0, width, height, STATIC_BG);
-            Render2DHelper.drawRect(0, 0, width, height, Theme.rgba(0, 0, 0, 80)); // Soft darkening overlay
+            Render2DHelper.drawRect(0, 0, width, height, Theme.rgba(0, 0, 0, 70)); // Soft darkening overlay
         } else if (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.FLOWING_GRADIENT) {
             // Smooth gradient wave
             int col1 = theme.background;
@@ -97,15 +108,16 @@ public class ZygotMainMenu extends GuiScreen {
 
         // 2. Client Logo & Branding Header
         float centerX = width / 2f;
-        float logoY = height / 2f - 110;
+        int totalBlockH = 234;
+        float startY = Math.max(25, (height - totalBlockH - 24) / 2f);
 
         // Render logo icon with appropriate contrast
         ResourceLocation logo = theme.isDark() ? LOGO_WHITE : LOGO_DARK;
-        Render2DHelper.drawTexturedRect(centerX - 24, logoY - 44, 48, 48, logo);
+        Render2DHelper.drawTexturedRect(centerX - 24, startY, 48, 48, logo);
 
         // Title and Tagline
-        Zygot.INSTANCE.fontManager.bold32.drawCenteredString(ClientBranding.NAME, centerX, logoY + 10, theme.textPrimary);
-        Zygot.INSTANCE.fontManager.regular14.drawCenteredString(ClientBranding.TAGLINE, centerX, logoY + 36, theme.textSecondary);
+        Zygot.INSTANCE.fontManager.bold32.drawCenteredString(ClientBranding.NAME, centerX, startY + 52, theme.textPrimary);
+        Zygot.INSTANCE.fontManager.regular14.drawCenteredString(ClientBranding.TAGLINE, centerX, startY + 78, theme.textSecondary);
 
         // 3. Render Buttons
         for (MenuButton btn : buttons) {

@@ -22,8 +22,8 @@ public class ZygotLoadingScreen {
     private static int progress = 0;
     private static int maxProgress = 10;
     private static String statusText = "Initializing...";
-    private static final ResourceLocation SPLASH_BG = new ResourceLocation("zygot/textures/splash.png");
-    private static final ResourceLocation LOGO = new ResourceLocation("zygot/textures/logo_white_nobg.png");
+    private static final ResourceLocation SPLASH_BG = new ResourceLocation("zygot", "textures/splash.png");
+    private static final ResourceLocation LOGO = new ResourceLocation("zygot", "textures/logo_white_nobg.png");
 
     public static void setProgress(int prog, int max, String status) {
         progress = prog;

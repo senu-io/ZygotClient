@@ -60,16 +60,33 @@ public class Render2DHelper {
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         color(color);
 
-        // Core rectangles
-        drawRect(x + radius, y, width - radius * 2, height, color);
-        drawRect(x, y + radius, radius, height - radius * 2, color);
-        drawRect(x + width - radius, y + radius, radius, height - radius * 2, color);
+        GL11.glBegin(GL11.GL_POLYGON);
 
-        // 4 corner fan arcs
-        drawArc(x + radius, y + radius, radius, 180, 270, color);
-        drawArc(x + width - radius, y + radius, radius, 270, 360, color);
-        drawArc(x + width - radius, y + height - radius, radius, 0, 90, color);
-        drawArc(x + radius, y + height - radius, radius, 90, 180, color);
+        // Top-right corner (270 to 360 deg)
+        for (int i = 270; i <= 360; i += 6) {
+            double rad = Math.toRadians(i);
+            GL11.glVertex2d(x + width - radius + Math.cos(rad) * radius, y + radius + Math.sin(rad) * radius);
+        }
+
+        // Bottom-right corner (0 to 90 deg)
+        for (int i = 0; i <= 90; i += 6) {
+            double rad = Math.toRadians(i);
+            GL11.glVertex2d(x + width - radius + Math.cos(rad) * radius, y + height - radius + Math.sin(rad) * radius);
+        }
+
+        // Bottom-left corner (90 to 180 deg)
+        for (int i = 90; i <= 180; i += 6) {
+            double rad = Math.toRadians(i);
+            GL11.glVertex2d(x + radius + Math.cos(rad) * radius, y + height - radius + Math.sin(rad) * radius);
+        }
+
+        // Top-left corner (180 to 270 deg)
+        for (int i = 180; i <= 270; i += 6) {
+            double rad = Math.toRadians(i);
+            GL11.glVertex2d(x + radius + Math.cos(rad) * radius, y + radius + Math.sin(rad) * radius);
+        }
+
+        GL11.glEnd();
 
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         GlStateManager.enableTexture2D();
@@ -200,9 +217,10 @@ public class Render2DHelper {
     }
 
     public static void drawTexturedRect(float x, float y, float width, float height, ResourceLocation texture) {
-        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+        GlStateManager.enableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         Tessellator tessellator = Tessellator.getInstance();

@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class WatermarkMod extends HudMod {
 
-    private static final ResourceLocation LOGO_ICON = new ResourceLocation("zygot/textures/logo_white_nobg.png");
+    private static final ResourceLocation LOGO_ICON = new ResourceLocation("zygot", "textures/logo_white_nobg.png");
 
     public WatermarkMod() {
         super("Watermark", "Displays the magnificent Zygot Client watermark.", 10, 510, 110, 22);

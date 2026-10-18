@@ -27,8 +27,8 @@ import java.util.List;
  */
 public class ZygotModMenu extends GuiScreen {
 
-    private static final ResourceLocation LOGO_WHITE = new ResourceLocation("zygot/textures/logo_white_nobg.png");
-    private static final ResourceLocation LOGO_DARK = new ResourceLocation("zygot/textures/logo_dark_nobg.png");
+    private static final ResourceLocation LOGO_WHITE = new ResourceLocation("zygot", "textures/logo_white_nobg.png");
+    private static final ResourceLocation LOGO_DARK = new ResourceLocation("zygot", "textures/logo_dark_nobg.png");
 
     private final GuiScreen parent;
     private Category selectedCategory = null; // null means "All"
