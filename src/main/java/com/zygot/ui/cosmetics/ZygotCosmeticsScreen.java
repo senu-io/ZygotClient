@@ -29,6 +29,9 @@ public class ZygotCosmeticsScreen extends GuiScreen {
     private int prevMouseX;
     private int prevMouseY;
     private DummyPlayer dummyPlayer;
+    private float scrollY = 0.0F;
+    private float targetScrollY = 0.0F;
+    private float maxScroll = 0.0F;
 
     public ZygotCosmeticsScreen(GuiScreen parent) {
         this.parent = parent;
@@ -98,15 +101,27 @@ public class ZygotCosmeticsScreen extends GuiScreen {
         Render2DHelper.drawGlassPanel(gridX, gridY, gridW, gridH, 8, theme.surface, theme.cardBorder, 1f);
 
         List<Cosmetic> list = Zygot.INSTANCE.cosmeticManager.getCosmeticsByType(activeType);
-        float itemW = (gridW - 32) / 2f;
+        float itemW = (gridW - 36) / 2f;
         float itemH = 46;
+
+        // Calculate max scroll
+        int totalRows = (list.size() + 1) / 2;
+        float totalContentH = totalRows * (itemH + 10) + 18;
+        maxScroll = Math.max(0, totalContentH - gridH);
+        if (targetScrollY > maxScroll) targetScrollY = maxScroll;
+        if (targetScrollY < 0) targetScrollY = 0;
+        scrollY += (targetScrollY - scrollY) * 0.3F;
+
+        // Scissor clip the scrollable items grid
+        Render2DHelper.pushScissor(gridX + 4, gridY + 4, gridW - 8, gridH - 8);
+
         int col = 0;
-        float iy = gridY + 14;
+        float iy = gridY + 14 - scrollY;
 
         for (Cosmetic c : list) {
             float ix = gridX + 14 + col * (itemW + 8);
             boolean equipped = Zygot.INSTANCE.cosmeticManager.isEquipped(c.getId());
-            boolean hovered = mouseX >= ix && mouseX <= ix + itemW && mouseY >= iy && mouseY <= iy + itemH;
+            boolean hovered = mouseX >= ix && mouseX <= ix + itemW && mouseY >= iy && mouseY <= iy + itemH && mouseY >= gridY && mouseY <= gridY + gridH;
 
             int cardBg = equipped ? Theme.withAlpha(theme.accent, 40) : (hovered ? theme.surfaceHover : theme.cardBg);
             int cardBorder = equipped ? theme.accent : (hovered ? theme.accentHover : theme.cardBorder);
@@ -136,7 +151,29 @@ public class ZygotCosmeticsScreen extends GuiScreen {
             }
         }
 
+        Render2DHelper.popScissor();
+
+        // Draw scrollbar if scrollable
+        if (maxScroll > 0) {
+            float barH = Math.max(24, (gridH / (gridH + maxScroll)) * (gridH - 16));
+            float barY = gridY + 8 + (scrollY / maxScroll) * (gridH - 16 - barH);
+            Render2DHelper.drawRoundedRect(gridX + gridW - 7, barY, 3, barH, 1.5F, Theme.withAlpha(theme.accent, 140));
+        }
+
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+        int dWheel = Mouse.getEventDWheel();
+        if (dWheel != 0) {
+            if (dWheel > 0) {
+                targetScrollY = Math.max(0, targetScrollY - 40);
+            } else {
+                targetScrollY = Math.min(maxScroll, targetScrollY + 40);
+            }
+        }
     }
 
     @Override
@@ -153,7 +190,11 @@ public class ZygotCosmeticsScreen extends GuiScreen {
         for (CosmeticType type : CosmeticType.values()) {
             float tw = Zygot.INSTANCE.fontManager.bold16.getStringWidth(type.getDisplayName()) + 24;
             if (mouseX >= tabX && mouseX <= tabX + tw && mouseY >= tabY && mouseY <= tabY + 22) {
-                this.activeType = type;
+                if (this.activeType != type) {
+                    this.activeType = type;
+                    this.scrollY = 0;
+                    this.targetScrollY = 0;
+                }
                 return;
             }
             tabX += tw + 8;
@@ -174,22 +215,26 @@ public class ZygotCosmeticsScreen extends GuiScreen {
         float gridX = previewX + previewW + 16;
         float gridY = py + 88;
         float gridW = pw - previewW - 56;
-        List<Cosmetic> list = Zygot.INSTANCE.cosmeticManager.getCosmeticsByType(activeType);
-        float itemW = (gridW - 32) / 2f;
-        float itemH = 46;
-        int col = 0;
-        float iy = gridY + 14;
+        float gridH = previewH;
 
-        for (Cosmetic c : list) {
-            float ix = gridX + 14 + col * (itemW + 8);
-            if (mouseX >= ix && mouseX <= ix + itemW && mouseY >= iy && mouseY <= iy + itemH) {
-                Zygot.INSTANCE.cosmeticManager.toggleEquip(c.getId());
-                return;
-            }
-            col++;
-            if (col >= 2) {
-                col = 0;
-                iy += itemH + 10;
+        if (mouseX >= gridX && mouseX <= gridX + gridW && mouseY >= gridY && mouseY <= gridY + gridH) {
+            List<Cosmetic> list = Zygot.INSTANCE.cosmeticManager.getCosmeticsByType(activeType);
+            float itemW = (gridW - 36) / 2f;
+            float itemH = 46;
+            int col = 0;
+            float iy = gridY + 14 - scrollY;
+
+            for (Cosmetic c : list) {
+                float ix = gridX + 14 + col * (itemW + 8);
+                if (mouseX >= ix && mouseX <= ix + itemW && mouseY >= iy && mouseY <= iy + itemH) {
+                    Zygot.INSTANCE.cosmeticManager.toggleEquip(c.getId());
+                    return;
+                }
+                col++;
+                if (col >= 2) {
+                    col = 0;
+                    iy += itemH + 10;
+                }
             }
         }
 

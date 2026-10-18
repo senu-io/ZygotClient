@@ -234,7 +234,19 @@ public class Render2DHelper {
         GL11.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
     }
 
+    public static void startScissor(float x, float y, float width, float height) {
+        startScissor((int) x, (int) y, (int) width, (int) height);
+    }
+
     public static void stopScissor() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    }
+
+    public static void pushScissor(float x, float y, float width, float height) {
+        startScissor(x, y, width, height);
+    }
+
+    public static void popScissor() {
+        stopScissor();
     }
 }

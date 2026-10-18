@@ -43,18 +43,18 @@ public class ClientBranding {
     public static BackgroundMode DEFAULT_BACKGROUND_MODE = BackgroundMode.STATIC_IMAGE;
 
     // Static Wallpaper Texture Location (used when BackgroundMode is STATIC_IMAGE or fallback)
-    public static String STATIC_WALLPAPER_PATH = "zygot/textures/main_menu.png";
+    public static String STATIC_WALLPAPER_PATH = "zygot:textures/main_menu.png";
 
     // Splash / Loading Screen Background Location
-    public static String SPLASH_WALLPAPER_PATH = "zygot/textures/splash.png";
+    public static String SPLASH_WALLPAPER_PATH = "zygot:textures/splash.png";
 
     // Logo Texture Locations
-    public static String LOGO_PATH = "zygot/textures/logo.png";
-    public static String LOGO_WHITE_PATH = "zygot/textures/logo_white_nobg.png";
-    public static String LOGO_DARK_PATH = "zygot/textures/logo_dark_nobg.png";
+    public static String LOGO_PATH = "zygot:textures/logo.png";
+    public static String LOGO_WHITE_PATH = "zygot:textures/logo_white_nobg.png";
+    public static String LOGO_DARK_PATH = "zygot:textures/logo_dark_nobg.png";
 
     // Watermark Icon Location
-    public static String WATERMARK_ICON_PATH = "zygot/textures/logo_white_nobg.png";
+    public static String WATERMARK_ICON_PATH = "zygot:textures/logo_white_nobg.png";
 
     // Default TTF font family name from assets/zygot/fonts/
     public static String DEFAULT_FONT_NAME = "Comfortaa";

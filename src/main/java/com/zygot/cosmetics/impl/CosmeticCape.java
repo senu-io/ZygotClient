@@ -10,8 +10,23 @@ import net.minecraft.util.ResourceLocation;
 
 public class CosmeticCape extends Cosmetic {
 
+    private final AnimatedCapeTexture animatedTexture;
+
     public CosmeticCape(String id, String name, ResourceLocation texture) {
+        this(id, name, texture, false);
+    }
+
+    public CosmeticCape(String id, String name, ResourceLocation texture, boolean animated) {
         super(id, name, CosmeticType.CAPE, texture);
+        this.animatedTexture = animated ? new AnimatedCapeTexture(id, texture) : null;
+    }
+
+    @Override
+    public ResourceLocation getTexture() {
+        if (animatedTexture != null) {
+            return animatedTexture.getCurrentTexture();
+        }
+        return super.getTexture();
     }
 
     @Override
