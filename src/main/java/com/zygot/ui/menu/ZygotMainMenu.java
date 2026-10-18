@@ -33,8 +33,9 @@ public class ZygotMainMenu extends GuiScreen {
     private final Random random = new Random();
     private float time = 0;
 
-    private static final ResourceLocation STATIC_BG = new ResourceLocation("zygot/textures/main_menu.jpg");
-    private static final ResourceLocation LOGO = new ResourceLocation("zygot/textures/logo.png");
+    private static final ResourceLocation STATIC_BG = new ResourceLocation("zygot/textures/main_menu.png");
+    private static final ResourceLocation LOGO_WHITE = new ResourceLocation("zygot/textures/logo_white_nobg.png");
+    private static final ResourceLocation LOGO_DARK = new ResourceLocation("zygot/textures/logo_dark_nobg.png");
 
     @Override
     public void initGui() {
@@ -71,24 +72,36 @@ public class ZygotMainMenu extends GuiScreen {
         if (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.STATIC_IMAGE) {
             // High-resolution static wallpaper
             Render2DHelper.drawTexturedRect(0, 0, width, height, STATIC_BG);
-            Render2DHelper.drawRect(0, 0, width, height, Theme.rgba(0, 0, 0, 90)); // Soft darkening overlay
+            Render2DHelper.drawRect(0, 0, width, height, Theme.rgba(0, 0, 0, 80)); // Soft darkening overlay
         } else if (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.FLOWING_GRADIENT) {
             // Smooth gradient wave
             int col1 = theme.background;
             int col2 = theme.accentGlow;
             Render2DHelper.drawGradientRect(0, 0, width, height, col1, col2, false);
         } else {
-            // Animated Particles Mesh (Default)
+            // Animated Particles Mesh
             Render2DHelper.drawRect(0, 0, width, height, theme.background);
             renderParticleMesh(mouseX, mouseY, theme);
         }
+
+        // Top-right Background Mode Toggle Pill
+        String modeText = (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.STATIC_IMAGE) ? "Mode: Wallpaper" : "Mode: Particles";
+        float modeW = Zygot.INSTANCE.fontManager.regular14.getStringWidth(modeText) + 20;
+        float modeX = width - modeW - 14;
+        float modeY = 14;
+        boolean modeHovered = mouseX >= modeX && mouseX <= modeX + modeW && mouseY >= modeY && mouseY <= modeY + 22;
+        int modeBg = modeHovered ? theme.surfaceHover : theme.surface;
+        int modeBorder = modeHovered ? theme.accentHover : theme.cardBorder;
+        Render2DHelper.drawGlassPanel(modeX, modeY, modeW, 22, 6, modeBg, modeBorder, 1.0F);
+        Zygot.INSTANCE.fontManager.regular14.drawCenteredString(modeText, modeX + modeW / 2f, modeY + 5, theme.textPrimary);
 
         // 2. Client Logo & Branding Header
         float centerX = width / 2f;
         float logoY = height / 2f - 110;
 
-        // Render logo icon
-        Render2DHelper.drawTexturedRect(centerX - 18, logoY - 32, 36, 36, LOGO);
+        // Render logo icon with appropriate contrast
+        ResourceLocation logo = theme.isDark() ? LOGO_WHITE : LOGO_DARK;
+        Render2DHelper.drawTexturedRect(centerX - 24, logoY - 44, 48, 48, logo);
 
         // Title and Tagline
         Zygot.INSTANCE.fontManager.bold32.drawCenteredString(ClientBranding.NAME, centerX, logoY + 10, theme.textPrimary);
@@ -159,6 +172,20 @@ public class ZygotMainMenu extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        // Top-right Background Mode Switcher Click
+        String modeText = (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.STATIC_IMAGE) ? "Mode: Wallpaper" : "Mode: Particles";
+        float modeW = Zygot.INSTANCE.fontManager.regular14.getStringWidth(modeText) + 20;
+        float modeX = width - modeW - 14;
+        float modeY = 14;
+        if (mouseX >= modeX && mouseX <= modeX + modeW && mouseY >= modeY && mouseY <= modeY + 22) {
+            if (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.STATIC_IMAGE) {
+                ClientBranding.DEFAULT_BACKGROUND_MODE = BackgroundMode.ANIMATED_PARTICLES;
+            } else {
+                ClientBranding.DEFAULT_BACKGROUND_MODE = BackgroundMode.STATIC_IMAGE;
+            }
+            return;
+        }
+
         for (MenuButton btn : buttons) {
             if (btn.isHovered(mouseX, mouseY)) {
                 btn.onClick();

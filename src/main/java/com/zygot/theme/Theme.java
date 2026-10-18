@@ -11,6 +11,10 @@ public class Theme implements Cloneable {
     public String name;
     public boolean dark;
 
+    public boolean isDark() {
+        return dark;
+    }
+
     // Accent colors
     public int accent;
     public int accentHover;

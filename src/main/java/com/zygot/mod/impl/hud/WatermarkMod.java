@@ -8,8 +8,11 @@ import com.zygot.mod.HudMod;
 import com.zygot.theme.Theme;
 import com.zygot.util.render.Render2DHelper;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
 
 public class WatermarkMod extends HudMod {
+
+    private static final ResourceLocation LOGO_ICON = new ResourceLocation("zygot/textures/logo_white_nobg.png");
 
     public WatermarkMod() {
         super("Watermark", "Displays the magnificent Zygot Client watermark.", 10, 510, 110, 22);
@@ -40,16 +43,15 @@ public class WatermarkMod extends HudMod {
 
         String text = ClientBranding.getWatermarkText();
         float textWidth = Zygot.INSTANCE.fontManager.bold16.getStringWidth(text);
-        this.width = textWidth + 24;
+        this.width = textWidth + 34;
         this.height = 22;
 
         drawHudBackground(width, height);
 
-        // Glowing accent marker pip
-        int accent = Zygot.INSTANCE.themeManager.getCurrentTheme().accent;
-        Render2DHelper.drawRoundedRect(5, 5, 3, height - 10, 1.5f, accent);
+        // Logo icon
+        Render2DHelper.drawTexturedRect(6, 4, 14, 14, LOGO_ICON);
 
-        Zygot.INSTANCE.fontManager.bold16.drawString(text, 14, 5, getTextColor());
+        Zygot.INSTANCE.fontManager.bold16.drawString(text, 24, 5, getTextColor());
 
         GlStateManager.popMatrix();
     }

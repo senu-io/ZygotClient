@@ -40,22 +40,31 @@ public class ClientBranding {
      * - BackgroundMode.FLOWING_GRADIENT   (Smooth animated shader-like gradient wave)
      * - BackgroundMode.ANIMATED_PANORAMA  (Rotating skybox panorama)
      */
-    public static BackgroundMode DEFAULT_BACKGROUND_MODE = BackgroundMode.ANIMATED_PARTICLES;
+    public static BackgroundMode DEFAULT_BACKGROUND_MODE = BackgroundMode.STATIC_IMAGE;
 
     // Static Wallpaper Texture Location (used when BackgroundMode is STATIC_IMAGE or fallback)
-    public static String STATIC_WALLPAPER_PATH = "zygot/textures/main_menu.jpg";
+    public static String STATIC_WALLPAPER_PATH = "zygot/textures/main_menu.png";
 
     // Splash / Loading Screen Background Location
-    public static String SPLASH_WALLPAPER_PATH = "zygot/textures/splash.jpg";
+    public static String SPLASH_WALLPAPER_PATH = "zygot/textures/splash.png";
 
-    // Logo Texture Location
+    // Logo Texture Locations
     public static String LOGO_PATH = "zygot/textures/logo.png";
+    public static String LOGO_WHITE_PATH = "zygot/textures/logo_white_nobg.png";
+    public static String LOGO_DARK_PATH = "zygot/textures/logo_dark_nobg.png";
 
     // Watermark Icon Location
-    public static String WATERMARK_ICON_PATH = "zygot/textures/logo.png";
+    public static String WATERMARK_ICON_PATH = "zygot/textures/logo_white_nobg.png";
 
     // Default TTF font family name from assets/zygot/fonts/
     public static String DEFAULT_FONT_NAME = "Comfortaa";
+
+    /**
+     * Returns the appropriate logo texture path depending on theme contrast.
+     */
+    public static String getThemeLogoPath(boolean isDark) {
+        return isDark ? LOGO_WHITE_PATH : LOGO_DARK_PATH;
+    }
 
     // ==========================================
     // Community & Social Links

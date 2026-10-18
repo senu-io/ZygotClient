@@ -22,8 +22,8 @@ public class ZygotLoadingScreen {
     private static int progress = 0;
     private static int maxProgress = 10;
     private static String statusText = "Initializing...";
-    private static final ResourceLocation SPLASH_BG = new ResourceLocation("zygot/textures/splash.jpg");
-    private static final ResourceLocation LOGO = new ResourceLocation("zygot/textures/logo.png");
+    private static final ResourceLocation SPLASH_BG = new ResourceLocation("zygot/textures/splash.png");
+    private static final ResourceLocation LOGO = new ResourceLocation("zygot/textures/logo_white_nobg.png");
 
     public static void setProgress(int prog, int max, String status) {
         progress = prog;
@@ -54,19 +54,15 @@ public class ZygotLoadingScreen {
         GlStateManager.disableDepth();
         GlStateManager.enableTexture2D();
 
-        // 1. Background
-        if (ClientBranding.DEFAULT_BACKGROUND_MODE == BackgroundMode.STATIC_IMAGE) {
-            Render2DHelper.drawTexturedRect(0, 0, width, height, SPLASH_BG);
-            Render2DHelper.drawRect(0, 0, width, height, Theme.rgba(0, 0, 0, 100));
-        } else {
-            Render2DHelper.drawRect(0, 0, width, height, Theme.rgba(14, 14, 18, 255));
-        }
+        // 1. Splash Screen Wallpaper Background
+        Render2DHelper.drawTexturedRect(0, 0, width, height, SPLASH_BG);
+        Render2DHelper.drawRect(0, 0, width, height, Theme.rgba(0, 0, 0, 75));
 
-        // 2. Center Branding
+        // 2. Center Branding Logo
         float cx = width / 2f;
         float cy = height / 2f - 20;
 
-        Render2DHelper.drawTexturedRect(cx - 24, cy - 60, 48, 48, LOGO);
+        Render2DHelper.drawTexturedRect(cx - 32, cy - 75, 64, 64, LOGO);
 
         // 3. Progress Card
         float cardW = Math.min(320, width - 40);

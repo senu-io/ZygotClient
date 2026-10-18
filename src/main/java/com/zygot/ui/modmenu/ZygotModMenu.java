@@ -12,6 +12,7 @@ import com.zygot.ui.hud.ZygotHudEditor;
 import com.zygot.util.render.Render2DHelper;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -25,6 +26,9 @@ import java.util.List;
  * fluid toggle switches, smooth sliders, live search, and theme switching.
  */
 public class ZygotModMenu extends GuiScreen {
+
+    private static final ResourceLocation LOGO_WHITE = new ResourceLocation("zygot/textures/logo_white_nobg.png");
+    private static final ResourceLocation LOGO_DARK = new ResourceLocation("zygot/textures/logo_dark_nobg.png");
 
     private final GuiScreen parent;
     private Category selectedCategory = null; // null means "All"
@@ -63,8 +67,10 @@ public class ZygotModMenu extends GuiScreen {
         Render2DHelper.drawGlassPanel(px, py, sideW, ph, 10, theme.backgroundSecondary, theme.cardBorder, 1f);
 
         // Branding Logo & Text
-        Zygot.INSTANCE.fontManager.bold20.drawString(ClientBranding.NAME, px + 18, py + 20, theme.accent);
-        Zygot.INSTANCE.fontManager.light14.drawString("Settings & Mods", px + 18, py + 38, theme.textMuted);
+        ResourceLocation logo = theme.isDark() ? LOGO_WHITE : LOGO_DARK;
+        Render2DHelper.drawTexturedRect(px + 12, py + 18, 26, 26, logo);
+        Zygot.INSTANCE.fontManager.bold20.drawString(ClientBranding.NAME, px + 44, py + 17, theme.accent);
+        Zygot.INSTANCE.fontManager.light14.drawString("Settings & Mods", px + 44, py + 34, theme.textMuted);
 
         // Category Buttons
         float catY = py + 65;
