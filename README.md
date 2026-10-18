@@ -1,6 +1,6 @@
 # Zygot Client
 
-Zygot Client is a modern, high-performance Minecraft 1.8.9 PvP client built on Forge. Designed with modern user interface standards reminiscent of Feather Client and Lunar Client, it integrates glassmorphic UI components, smooth animations, an extensible cosmetics engine, and over 35 PvP, HUD, and quality-of-life modules.
+Zygot Client is a modern, high-performance Minecraft 1.8.9 PvP client built on Forge. Designed with modern user interface standards reminiscent of modern minecraft clients, it integrates glassmorphic UI components, smooth animations, an extensible cosmetics engine, and over 35 PvP, HUD, and quality-of-life modules.
 
 ## Key Features
 
