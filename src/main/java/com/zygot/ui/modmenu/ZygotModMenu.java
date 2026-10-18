@@ -34,7 +34,9 @@ public class ZygotModMenu extends GuiScreen {
     private float maxScroll = 0;
     private Mod expandedMod = null;
 
-    private Setting draggingSlider = null;
+    private NumberSetting draggingSlider = null;
+    private float draggingSliderX = 0;
+    private float draggingSliderW = 75;
     private KeybindSetting listeningKeybind = null;
 
     public ZygotModMenu(GuiScreen parent) {
@@ -97,7 +99,7 @@ public class ZygotModMenu extends GuiScreen {
         float searchW = Math.min(220, contentW);
         float searchH = 24;
         Render2DHelper.drawGlassPanel(contentX, contentY, searchW, searchH, 6, theme.surface, theme.cardBorder, 1f);
-        String searchDisplay = searchQuery.isEmpty() ? "Search mods..." : searchQuery;
+        String searchDisplay = searchQuery.isEmpty() ? "Search mods..." : (searchQuery + (System.currentTimeMillis() % 1000 > 500 ? "|" : ""));
         int searchCol = searchQuery.isEmpty() ? theme.textMuted : theme.textPrimary;
         Zygot.INSTANCE.fontManager.regular14.drawString(searchDisplay, contentX + 10, contentY + 5, searchCol);
 
@@ -397,6 +399,19 @@ public class ZygotModMenu extends GuiScreen {
                         } else if (s instanceof KeybindSetting) {
                             listeningKeybind = (KeybindSetting) s;
                             return;
+                        } else if (s instanceof NumberSetting) {
+                            NumberSetting ns = (NumberSetting) s;
+                            float rx = cardX + 12;
+                            float rw = cardW - 24;
+                            float sliderW = 75;
+                            float sliderX = rx + rw - sliderW - 8;
+                            if (mouseX >= sliderX - 6 && mouseX <= sliderX + sliderW + 6 && mouseY >= sy && mouseY <= sy + 22) {
+                                draggingSlider = ns;
+                                draggingSliderX = sliderX;
+                                draggingSliderW = sliderW;
+                                updateSliderValue(ns, draggingSliderX, draggingSliderW, mouseX);
+                                return;
+                            }
                         }
                     }
                     sy += 24;
@@ -411,6 +426,29 @@ public class ZygotModMenu extends GuiScreen {
         }
 
         super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+        if (draggingSlider != null) {
+            updateSliderValue(draggingSlider, draggingSliderX, draggingSliderW, mouseX);
+        }
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state) {
+        draggingSlider = null;
+        super.mouseReleased(mouseX, mouseY, state);
+    }
+
+    private void updateSliderValue(NumberSetting ns, float sx, float sw, int mx) {
+        float percent = Math.max(0.0F, Math.min(1.0F, (mx - sx) / sw));
+        double val = ns.getMin() + percent * (ns.getMax() - ns.getMin());
+        double step = ns.getIncrement();
+        if (step > 0) {
+            val = Math.round(val / step) * step;
+        }
+        ns.setValue(val);
     }
 
     @Override
@@ -435,7 +473,9 @@ public class ZygotModMenu extends GuiScreen {
             if (!searchQuery.isEmpty()) {
                 searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
             }
-        } else if (Character.isLetterOrDigit(typedChar) || typedChar == ' ') {
+        } else if (keyCode == Keyboard.KEY_DELETE) {
+            searchQuery = "";
+        } else if (!Character.isISOControl(typedChar)) {
             if (searchQuery.length() < 24) {
                 searchQuery += typedChar;
             }

@@ -2,21 +2,26 @@ package com.zygot.mixin;
 
 import com.zygot.Zygot;
 import com.zygot.mod.impl.pvp.OldAnimationsMod;
+import com.zygot.mod.impl.render.LowFireMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.ItemFishingRod;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemRenderer.class)
@@ -27,35 +32,141 @@ public abstract class MixinItemRenderer {
     private Minecraft mc;
 
     @Shadow
+    private float prevEquippedProgress;
+
+    @Shadow
+    private float equippedProgress;
+
+    @Shadow
     private ItemStack itemToRender;
 
     @Shadow
-    protected abstract void transformFirstPersonItem(float equipProgress, float swingProgress);
+    private void rotateArroundXAndY(float angle, float angleY) {}
 
     @Shadow
-    protected abstract void doBlockTransformations();
+    private void setLightMapFromPlayer(AbstractClientPlayer clientPlayer) {}
 
-    @Inject(method = "renderItemInFirstPerson", at = @At("HEAD"), cancellable = true)
-    public void onRenderItemInFirstPerson(float partialTicks, CallbackInfo ci) {
+    @Shadow
+    private void rotateWithPlayerRotations(EntityPlayerSP entityplayerspIn, float partialTicks) {}
+
+    @Shadow
+    private void renderItemMap(AbstractClientPlayer clientPlayer, float pitch, float equipmentProgress, float swingProgress) {}
+
+    @Shadow
+    private void transformFirstPersonItem(float equipProgress, float swingProgress) {}
+
+    @Shadow
+    private void performDrinking(AbstractClientPlayer clientPlayer, float partialTicks) {}
+
+    @Shadow
+    private void doBlockTransformations() {}
+
+    @Shadow
+    private void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer) {}
+
+    @Shadow
+    private void doItemUsedTransformations(float swingProgress) {}
+
+    @Shadow
+    public void renderItem(EntityLivingBase entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform) {}
+
+    @Shadow
+    private void renderPlayerArm(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress) {}
+
+    /**
+     * Authentic 1.7 sword block position and rotations.
+     */
+    @Inject(method = "doBlockTransformations", at = @At("HEAD"), cancellable = true)
+    public void onDoBlockTransformations(CallbackInfo ci) {
         if (Zygot.INSTANCE == null || Zygot.INSTANCE.modManager == null) return;
         OldAnimationsMod mod = Zygot.INSTANCE.modManager.getMod(OldAnimationsMod.class);
-        if (mod == null || !mod.isToggled()) return;
-
-        EntityPlayerSP player = mc.thePlayer;
-        if (player == null || itemToRender == null) return;
-
-        // Custom 1.7 Blockhit rendering logic
-        if (player.getItemInUseCount() > 0 && itemToRender.getItem() instanceof ItemSword && mod.blockHit.isEnabled()) {
-            float swingProgress = player.getSwingProgress(partialTicks);
-            GlStateManager.pushMatrix();
-
-            // 1.7 Blockhit transformation matrix
-            transformFirstPersonItem(0.0F, swingProgress);
-            doBlockTransformations();
-            GlStateManager.translate(-0.05F, 0.05F, 0.0F);
-
-            // Item is rendered in transformed space
-            GlStateManager.popMatrix();
+        if (mod != null && mod.isToggled() && mod.blockHit.isEnabled()) {
+            GlStateManager.translate(-0.24F, 0.17F, 0.0F);
+            GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(-80.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(60.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.translate(0.0F, 0.18F, 0.00F);
+            ci.cancel();
         }
+    }
+
+    /**
+     * First-person item rendering with 1.7 block-hitting, eating, bow, and fishing rod animations.
+     *
+     * @author Zygot
+     * @reason 1.7 authentic PvP combat animations
+     */
+    @Overwrite
+    public void renderItemInFirstPerson(float partialTicks) {
+        OldAnimationsMod mod = (Zygot.INSTANCE != null && Zygot.INSTANCE.modManager != null)
+                ? Zygot.INSTANCE.modManager.getMod(OldAnimationsMod.class) : null;
+        boolean animEnabled = mod != null && mod.isToggled();
+
+        float f = 1.0F - (this.prevEquippedProgress + (this.equippedProgress - this.prevEquippedProgress) * partialTicks);
+        EntityPlayerSP player = this.mc.thePlayer;
+        float f1 = player.getSwingProgress(partialTicks);
+        float f2 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
+        float f3 = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks;
+
+        this.rotateArroundXAndY(f2, f3);
+        this.setLightMapFromPlayer(player);
+        this.rotateWithPlayerRotations(player, partialTicks);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.pushMatrix();
+
+        if (this.itemToRender != null) {
+            if (this.itemToRender.getItem() instanceof net.minecraft.item.ItemMap) {
+                this.renderItemMap(player, f2, f, f1);
+            } else if (player.getItemInUseCount() > 0) {
+                EnumAction action = this.itemToRender.getItemUseAction();
+                switch (action) {
+                    case NONE:
+                        this.transformFirstPersonItem(f, 0.0F);
+                        break;
+                    case EAT:
+                    case DRINK:
+                        this.performDrinking(player, partialTicks);
+                        this.transformFirstPersonItem(f, animEnabled && mod.eatingAnimation.isEnabled() ? f1 : 0.0F);
+                        break;
+                    case BLOCK:
+                        this.transformFirstPersonItem(f, animEnabled && mod.blockHit.isEnabled() ? f1 : 0.0F);
+                        this.doBlockTransformations();
+                        break;
+                    case BOW:
+                        this.transformFirstPersonItem(f, animEnabled && mod.bowAnimation.isEnabled() ? f1 : 0.0F);
+                        this.doBowTransformations(partialTicks, player);
+                        break;
+                }
+            } else {
+                this.doItemUsedTransformations(f1);
+                if (this.itemToRender.getItem() instanceof ItemFishingRod && animEnabled && mod.rodAnimation.isEnabled()) {
+                    GlStateManager.translate(0.0F, 0.0F, -0.35F);
+                }
+                this.transformFirstPersonItem(f, f1);
+            }
+
+            this.renderItem(player, this.itemToRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
+        } else if (!player.isInvisible()) {
+            this.renderPlayerArm(player, f, f1);
+        }
+
+        GlStateManager.popMatrix();
+        GlStateManager.disableRescaleNormal();
+        RenderHelper.disableStandardItemLighting();
+    }
+
+    /**
+     * Lowers fire overlay in first-person based on LowFireMod.
+     */
+    @Redirect(method = "renderFireInFirstPerson", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;translate(FFF)V"))
+    public void onRenderFireTranslate(float x, float y, float z) {
+        float offsetY = 0.0F;
+        if (Zygot.INSTANCE != null && Zygot.INSTANCE.modManager != null) {
+            LowFireMod lowFire = Zygot.INSTANCE.modManager.getMod(LowFireMod.class);
+            if (lowFire != null && lowFire.isToggled()) {
+                offsetY = (float) lowFire.fireHeight.getValue();
+            }
+        }
+        GlStateManager.translate(x, y - offsetY, z);
     }
 }

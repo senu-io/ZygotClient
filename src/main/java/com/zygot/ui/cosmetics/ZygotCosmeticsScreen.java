@@ -28,9 +28,17 @@ public class ZygotCosmeticsScreen extends GuiScreen {
     private boolean isDraggingPlayer = false;
     private int prevMouseX;
     private int prevMouseY;
+    private DummyPlayer dummyPlayer;
 
     public ZygotCosmeticsScreen(GuiScreen parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public void initGui() {
+        if (mc.thePlayer == null && dummyPlayer == null) {
+            dummyPlayer = new DummyPlayer(mc.getSession() != null ? mc.getSession().getProfile() : null);
+        }
     }
 
     @Override
@@ -77,8 +85,9 @@ public class ZygotCosmeticsScreen extends GuiScreen {
         Zygot.INSTANCE.fontManager.light14.drawCenteredString("Click & drag to rotate preview", previewX + previewW / 2f, previewY + previewH - 16, theme.textMuted);
 
         // Render 3D Entity
-        if (mc.thePlayer != null) {
-            drawEntityOnScreen((int) (previewX + previewW / 2f), (int) (previewY + previewH - 26), 65, playerYaw, playerPitch, mc.thePlayer);
+        EntityLivingBase entityToRender = mc.thePlayer != null ? mc.thePlayer : dummyPlayer;
+        if (entityToRender != null) {
+            drawEntityOnScreen((int) (previewX + previewW / 2f), (int) (previewY + previewH - 26), 65, playerYaw, playerPitch, entityToRender);
         }
 
         // Right Panel: Cosmetic Items Grid

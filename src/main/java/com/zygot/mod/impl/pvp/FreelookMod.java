@@ -15,6 +15,7 @@ public class FreelookMod extends Mod {
     public final BooleanSetting invertPitch;
 
     private boolean active = false;
+    private int prevThirdPerson = 0;
     private float cameraYaw = 0f;
     private float cameraPitch = 0f;
 
@@ -38,8 +39,13 @@ public class FreelookMod extends Mod {
                     cameraYaw = mc.thePlayer.rotationYaw;
                     cameraPitch = mc.thePlayer.rotationPitch;
                 }
+                prevThirdPerson = mc.gameSettings.thirdPersonView;
+                if (mc.gameSettings.thirdPersonView == 0) {
+                    mc.gameSettings.thirdPersonView = 1;
+                }
             } else if (!down && active) {
                 active = false;
+                mc.gameSettings.thirdPersonView = prevThirdPerson;
             }
         }
     }

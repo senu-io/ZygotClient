@@ -178,12 +178,18 @@ public class ZygotHudEditor extends GuiScreen {
             }
         }
 
-        // Module Drag start
+        // Module Drag start (Left click) / Quick toggle background (Right click)
         List<HudMod> hudMods = Zygot.INSTANCE.modManager.getHudMods();
         for (HudMod mod : hudMods) {
             if (mod.isToggled() && mod.isHovered(mouseX, mouseY)) {
-                mod.startDragging(mouseX, mouseY);
-                selectedMod = mod;
+                if (mouseButton == 0) {
+                    mod.startDragging(mouseX, mouseY);
+                    selectedMod = mod;
+                } else if (mouseButton == 1) {
+                    if (mod.getSetting("Background") instanceof com.zygot.mod.setting.BooleanSetting) {
+                        ((com.zygot.mod.setting.BooleanSetting) mod.getSetting("Background")).toggle();
+                    }
+                }
                 return;
             }
         }

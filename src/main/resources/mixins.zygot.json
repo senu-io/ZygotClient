@@ -14,7 +14,11 @@
     "MixinRenderPlayer",
     "MixinRendererLivingEntity",
     "MixinEntityFX",
-    "MixinFontRenderer"
+    "MixinFontRenderer",
+    "MixinPlayerControllerMP",
+    "MixinGuiNewChat",
+    "MixinRenderTNTPrimed",
+    "MixinWorld"
   ],
   "mixins": []
 }
