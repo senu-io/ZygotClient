@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "${modid}",
+    "name": "Zygot Client",
+    "description": "Clean, high-performance Minecraft 1.8.9 Forge client with integrated OptiFine.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/senu-io/ZygotClient",
+    "updateUrl": "",
+    "authorList": ["senu-io"],
+    "credits": "Minecraft Forge, OptiFine",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
