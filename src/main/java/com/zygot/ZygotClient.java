@@ -1,5 +1,7 @@
 package com.zygot;
 
+import com.zygot.settings.DefaultSettingsManager;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -29,6 +31,7 @@ public class ZygotClient {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        DefaultSettingsManager.initialize(Minecraft.getMinecraft().mcDataDir);
         LOGGER.info("[Zygot Client] Base Forge Client with OptiFine loaded successfully.");
     }
 }
