@@ -3,19 +3,24 @@ package com.zygot.settings;
 import com.zygot.ZygotClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.util.List;
 
 /**
- * Manages default video and OptiFine performance/quality settings
- * applied on first launch of Zygot Client.
+ * Manages default video, OptiFine performance/quality settings,
+ * and Forge splash screen configuration for Zygot Client.
  */
 public class DefaultSettingsManager {
 
     private static final String MARKER_FILE = "zygot/.defaults_applied";
 
     public static void initialize(File mcDataDir) {
+        // Always ensure Forge default anvil splash is disabled
+        ensureForgeSplashDisabled(mcDataDir);
+
         File marker = new File(mcDataDir, MARKER_FILE);
         if (marker.exists()) {
             return;
@@ -53,6 +58,34 @@ public class DefaultSettingsManager {
             ZygotClient.LOGGER.info("[Zygot Client] Default settings successfully applied and saved.");
         } catch (IOException e) {
             ZygotClient.LOGGER.error("[Zygot Client] Failed to create defaults marker file", e);
+        }
+    }
+
+    private static void ensureForgeSplashDisabled(File mcDataDir) {
+        File splashFile = new File(mcDataDir, "config/splash.properties");
+        if (!splashFile.exists()) {
+            if (splashFile.getParentFile() != null) {
+                splashFile.getParentFile().mkdirs();
+            }
+            copyDefaultResource("/assets/zygot/defaults/splash.properties", splashFile);
+        } else {
+            try {
+                List<String> lines = FileUtils.readLines(splashFile, "UTF-8");
+                boolean modified = false;
+                for (int i = 0; i < lines.size(); i++) {
+                    String trimmed = lines.get(i).trim();
+                    if (trimmed.startsWith("enabled=") && !trimmed.equals("enabled=false")) {
+                        lines.set(i, "enabled=false");
+                        modified = true;
+                    }
+                }
+                if (modified) {
+                    FileUtils.writeLines(splashFile, "UTF-8", lines);
+                    ZygotClient.LOGGER.info("[Zygot Client] Disabled Forge default splash progress in splash.properties.");
+                }
+            } catch (Exception e) {
+                ZygotClient.LOGGER.error("[Zygot Client] Failed to update splash.properties", e);
+            }
         }
     }
 
